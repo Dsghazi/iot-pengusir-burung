@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Dashboard - IoT Pengusir Burung</title>
+    <style>
+        body {
+            font-family: system-ui, sans-serif;
+            background: #f4f6f9;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: #fff;
+            padding: 24px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #d4edda;
+            color: #155724;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .card {
+            background: #f8f9fa;
+            padding: 16px;
+            border-radius: 8px;
+            margin: 16px 0;
+            border-left: 4px solid #0d6efd;
+        }
+
+        button {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: bold;
+            width: 100%;
+        }
+
+        button:hover {
+            background: #bb2d3b;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+            font-size: 14px;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Monitoring Pengusir Hama Burung</h2>
+        <p>Status Perangkat Sawah: <span class="status">● Online (ESP32-Node01)</span></p>
+
+        <div class="card">
+            <strong>Kontrol Aktuator Jarak Jauh</strong>
+            <p style="font-size: 14px; color: #666;">Tekan tombol di bawah untuk memicu gelombang ultrasonik & sirine
+                secara manual.</p>
+            <button onclick="picuAlat()">Bunyikan Pengusir Burung Sekarang</button>
+        </div>
+
+        <h3>Log Deteksi Sensor</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Waktu</th>
+                    <th>Keterangan</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody id="logBody">
+                <tr>
+                    <td>08:15:10</td>
+                    <td>Gerakan terdeteksi (Sensor PIR)</td>
+                    <td>Ultrasonik Aktif</td>
+                </tr>
+                <tr>
+                    <td>09:42:03</td>
+                    <td>Gerakan terdeteksi (Sensor PIR)</td>
+                    <td>Ultrasonik Aktif</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function picuAlat() {
+            const waktu = new Date().toLocaleTimeString('id-ID');
+            const row = `<tr><td>${waktu}</td><td>Pemicu Manual via Cloud Dashboard</td><td>Sirine & Ultrasonik Aktif</td></tr>`;
+            document.getElementById('logBody').insertAdjacentHTML('afterbegin', row);
+            alert('Perintah berhasil dikirim ke perangkat!');
+        }
+    </script>
+</body>
+
+</html>
