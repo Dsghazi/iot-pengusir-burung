@@ -1,122 +1,120 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cloud Dashboard - IoT Pengusir Burung</title>
-    <style>
-        body {
-            font-family: system-ui, sans-serif;
-            background: #f4f6f9;
-            margin: 0;
-            padding: 20px;
-            color: #333;
-        }
-
-        .container {
-            max-width: 600px;
-            margin: auto;
-            background: #fff;
-            padding: 24px;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .status {
-            display: inline-block;
-            padding: 4px 12px;
-            background: #d4edda;
-            color: #155724;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: bold;
-        }
-
-        .card {
-            background: #f8f9fa;
-            padding: 16px;
-            border-radius: 8px;
-            margin: 16px 0;
-            border-left: 4px solid #0d6efd;
-        }
-
-        button {
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 15px;
-            font-weight: bold;
-            width: 100%;
-        }
-
-        button:hover {
-            background: #bb2d3b;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 12px;
-            font-size: 14px;
-        }
-
-        th,
-        td {
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
-            text-align: left;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cloud Dashboard - IoT Pengusir Burung (CRUD)</title>
+  <style>
+    body { font-family: system-ui, sans-serif; background: #f4f6f9; margin: 0; padding: 20px; color: #333; }
+    .container { max-width: 700px; margin: auto; background: #fff; padding: 24px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .status { display: inline-block; padding: 4px 12px; background: #d4edda; color: #155724; border-radius: 20px; font-size: 14px; font-weight: bold; }
+    .card { background: #f8f9fa; padding: 16px; border-radius: 8px; margin: 16px 0; border-left: 4px solid #0d6efd; }
+    button { color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: bold; }
+    .btn-main { background: #dc3545; padding: 12px 20px; width: 100%; font-size: 15px; }
+    .btn-main:hover { background: #bb2d3b; }
+    .btn-edit { background: #ffc107; color: #000; }
+    .btn-edit:hover { background: #e0a800; }
+    .btn-delete { background: #6c757d; }
+    .btn-delete:hover { background: #5a6268; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 14px; }
+    th, td { padding: 10px; border-bottom: 1px solid #ddd; text-align: left; }
+    .action-buttons { display: flex; gap: 8px; }
+  </style>
 </head>
-
 <body>
-    <div class="container">
-        <h2>Monitoring Pengusir Hama Burung</h2>
-        <p>Status Perangkat Sawah: <span class="status">● Online (ESP32-Node01)</span></p>
-
-        <div class="card">
-            <strong>Kontrol Aktuator Jarak Jauh</strong>
-            <p style="font-size: 14px; color: #666;">Tekan tombol di bawah untuk memicu gelombang ultrasonik & sirine
-                secara manual.</p>
-            <button onclick="picuAlat()">Bunyikan Pengusir Burung Sekarang</button>
-        </div>
-
-        <h3>Log Deteksi Sensor</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Waktu</th>
-                    <th>Keterangan</th>
-                    <th>Aksi</th>
-                </tr>
-            </thead>
-            <tbody id="logBody">
-                <tr>
-                    <td>08:15:10</td>
-                    <td>Gerakan terdeteksi (Sensor PIR)</td>
-                    <td>Ultrasonik Aktif</td>
-                </tr>
-                <tr>
-                    <td>09:42:03</td>
-                    <td>Gerakan terdeteksi (Sensor PIR)</td>
-                    <td>Ultrasonik Aktif</td>
-                </tr>
-            </tbody>
-        </table>
+  <div class="container">
+    <h2>Monitoring Pengusir Hama Burung</h2>
+    <p>Status Perangkat Sawah: <span class="status">● Online (ESP32-Node01)</span></p>
+    
+    <div class="card">
+      <strong>Kontrol Aktuator Jarak Jauh (Create)</strong>
+      <p style="font-size: 14px; color: #666;">Tekan tombol di bawah untuk memicu alat dan membuat log baru.</p>
+      <button class="btn-main" onclick="tambahData()">Bunyikan Pengusir Burung Sekarang</button>
     </div>
 
-    <script>
-        function picuAlat() {
-            const waktu = new Date().toLocaleTimeString('id-ID');
-            const row = `<tr><td>${waktu}</td><td>Pemicu Manual via Cloud Dashboard</td><td>Sirine & Ultrasonik Aktif</td></tr>`;
-            document.getElementById('logBody').insertAdjacentHTML('afterbegin', row);
-            alert('Perintah berhasil dikirim ke perangkat!');
-        }
-    </script>
-</body>
+    <h3>Log Deteksi Sensor (Read, Update, Delete)</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Waktu</th>
+          <th>Keterangan</th>
+          <th>Aksi Perangkat</th>
+          <th>Opsi (CRUD)</th>
+        </tr>
+      </thead>
+      <tbody id="logBody">
+        <!-- Data akan di-render di sini oleh JavaScript -->
+      </tbody>
+    </table>
+  </div>
 
+  <script>
+    // Inisialisasi Data Awal (Jika Local Storage kosong)
+    let logs = JSON.parse(localStorage.getItem('iot_logs')) || [
+      { id: 1, waktu: '08:15:10', keterangan: 'Gerakan terdeteksi (Sensor PIR)', aksi: 'Ultrasonik Aktif' },
+      { id: 2, waktu: '09:42:03', keterangan: 'Gerakan terdeteksi (Sensor PIR)', aksi: 'Ultrasonik Aktif' }
+    ];
+
+    // Fungsi READ: Menampilkan data ke dalam tabel
+    function bacaData() {
+      const tbody = document.getElementById('logBody');
+      tbody.innerHTML = '';
+      
+      logs.forEach(log => {
+        tbody.innerHTML += `
+          <tr>
+            <td>${log.waktu}</td>
+            <td>${log.keterangan}</td>
+            <td>${log.aksi}</td>
+            <td class="action-buttons">
+              <button class="btn-edit" onclick="editData(${log.id})">Edit</button>
+              <button class="btn-delete" onclick="hapusData(${log.id})">Hapus</button>
+            </td>
+          </tr>
+        `;
+      });
+      
+      // Simpan perubahan ke Local Storage
+      localStorage.setItem('iot_logs', JSON.stringify(logs));
+    }
+
+    // Fungsi CREATE: Menambah data baru
+    function tambahData() {
+      const logBaru = {
+        id: Date.now(), // Gunakan timestamp sebagai ID unik
+        waktu: new Date().toLocaleTimeString('id-ID', { hour12: false }),
+        keterangan: 'Pemicu Manual via Cloud Dashboard',
+        aksi: 'Sirine & Ultrasonik Aktif'
+      };
+      
+      logs.unshift(logBaru); // Tambahkan ke baris paling atas
+      bacaData();
+    }
+
+    // Fungsi UPDATE: Mengedit keterangan data
+    function editData(id) {
+      const index = logs.findIndex(log => log.id === id);
+      if (index !== -1) {
+        const keteranganBaru = prompt("Edit Keterangan Log:", logs[index].keterangan);
+        // Jika user tidak menekan cancel dan mengisi teks baru
+        if (keteranganBaru !== null && keteranganBaru.trim() !== "") {
+          logs[index].keterangan = keteranganBaru;
+          bacaData();
+        }
+      }
+    }
+
+    // Fungsi DELETE: Menghapus data
+    function hapusData(id) {
+      const konfirmasi = confirm("Apakah Anda yakin ingin menghapus log ini?");
+      if (konfirmasi) {
+        logs = logs.filter(log => log.id !== id);
+        bacaData();
+      }
+    }
+
+    // Jalankan fungsi Read saat halaman pertama kali dibuka
+    window.onload = bacaData;
+  </script>
+</body>
 </html>
