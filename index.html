@@ -1,36 +1,120 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cloud Dashboard - IoT Pengusir Burung (CRUD + Audio)</title>
+  <title>Cloud Dashboard - IoT Pengusir Burung (CRUD + MP3)</title>
   <style>
-    body { font-family: system-ui, sans-serif; background: #f4f6f9; margin: 0; padding: 20px; color: #333; }
-    .container { max-width: 700px; margin: auto; background: #fff; padding: 24px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-    .status { display: inline-block; padding: 4px 12px; background: #d4edda; color: #155724; border-radius: 20px; font-size: 14px; font-weight: bold; }
-    .card { background: #f8f9fa; padding: 16px; border-radius: 8px; margin: 16px 0; border-left: 4px solid #0d6efd; }
-    button { color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: bold; transition: 0.2s; }
-    .btn-main { background: #dc3545; padding: 12px 20px; width: 100%; font-size: 15px; }
-    .btn-main:hover { background: #bb2d3b; }
-    .btn-main.active-sound { background: #fd7e14; }
-    .btn-edit { background: #ffc107; color: #000; }
-    .btn-edit:hover { background: #e0a800; }
-    .btn-delete { background: #6c757d; }
-    .btn-delete:hover { background: #5a6268; }
-    table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 14px; }
-    th, td { padding: 10px; border-bottom: 1px solid #ddd; text-align: left; }
-    .action-buttons { display: flex; gap: 8px; }
+    body {
+      font-family: system-ui, sans-serif;
+      background: #f4f6f9;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: auto;
+      background: #fff;
+      padding: 24px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .status {
+      display: inline-block;
+      padding: 4px 12px;
+      background: #d4edda;
+      color: #155724;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    .card {
+      background: #f8f9fa;
+      padding: 16px;
+      border-radius: 8px;
+      margin: 16px 0;
+      border-left: 4px solid #0d6efd;
+    }
+
+    button {
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: bold;
+      transition: 0.2s;
+    }
+
+    .btn-main {
+      background: #dc3545;
+      padding: 12px 20px;
+      width: 100%;
+      font-size: 15px;
+    }
+
+    .btn-main:hover {
+      background: #bb2d3b;
+    }
+
+    .btn-main.active-sound {
+      background: #fd7e14;
+    }
+
+    .btn-edit {
+      background: #ffc107;
+      color: #000;
+    }
+
+    .btn-edit:hover {
+      background: #e0a800;
+    }
+
+    .btn-delete {
+      background: #6c757d;
+    }
+
+    .btn-delete:hover {
+      background: #5a6268;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 14px;
+    }
+
+    th,
+    td {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 8px;
+    }
   </style>
 </head>
+
 <body>
   <div class="container">
     <h2>Monitoring Pengusir Hama Burung</h2>
     <p>Status Perangkat Sawah: <span class="status">● Online (ESP32-Node01)</span></p>
-    
+
     <div class="card">
-      <strong>Kontrol Aktuator Jarak Jauh (Create + Audio)</strong>
-      <p style="font-size: 14px; color: #666;">Tekan tombol di bawah untuk membunyikan sirine pengusir burung dan mencatat log baru.</p>
-      <button id="btnPicu" class="btn-main" onclick="tambahData()">🔊 Bunyikan Pengusir Burung Sekarang</button>
+      <strong>Kontrol Aktuator Jarak Jauh (Create + Audio MP3)</strong>
+      <p style="font-size: 14px; color: #666;">Tekan tombol di bawah untuk memutar audio pengusir burung dan mencatat
+        log baru.</p>
+      <button id="btnPicu" class="btn-main" onclick="kelolaTombolUtama()">🔊 Bunyikan Pengusir Burung Sekarang</button>
     </div>
 
     <h3>Log Deteksi Sensor (Read, Update, Delete)</h3>
@@ -53,48 +137,45 @@
       { id: 2, waktu: '09:42:03', keterangan: 'Gerakan terdeteksi (Sensor PIR)', aksi: 'Ultrasonik Aktif' }
     ];
 
-    // Fungsi Generator Suara Sirine Pengusir Burung (Web Audio API)
-    function putarSuaraPengusir() {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      const ctx = new AudioCtx();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
+    // Memuat file suara.mp3 dari folder yang sama
+    const audioPengusir = new Audio('simpatik.mp3');
 
-      // Menggunakan gelombang sawtooth agar suara nyaring seperti buzzer/sirine
-      osc.type = 'sawtooth';
-      
-      const now = ctx.currentTime;
-      // Pola frekuensi naik-turun cepat selama 1.5 detik
-      osc.frequency.setValueAtTime(1800, now);
-      osc.frequency.linearRampToValueAtTime(3600, now + 0.35);
-      osc.frequency.linearRampToValueAtTime(1800, now + 0.70);
-      osc.frequency.linearRampToValueAtTime(3600, now + 1.05);
-      osc.frequency.linearRampToValueAtTime(1800, now + 1.40);
-
-      // Mengatur volume agar tidak pecah di speaker
-      gain.gain.setValueAtTime(0.3, now);
-      gain.gain.exponentialRampToValueAtTime(0.01, now + 1.5);
-
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-
-      osc.start(now);
-      osc.stop(now + 1.5);
-
-      // Efek visual sementara pada tombol saat suara berbunyi
+    function kelolaTombolUtama() {
       const btn = document.getElementById('btnPicu');
-      btn.textContent = '📢 Sirine & Ultrasonik Berbunyi...';
+
+      // Jika audio sedang berputar, klik berikutnya akan menghentikan suara
+      if (!audioPengusir.paused) {
+        audioPengusir.pause();
+        audioPengusir.currentTime = 0;
+        resetTombol();
+        return;
+      }
+
+      // Putar audio MP3
+      audioPengusir.play().catch(error => {
+        alert('Audio gagal diputar. Pastikan file suara.mp3 sudah ada di dalam folder proyek.');
+        console.error(error);
+      });
+
+      btn.textContent = '⏹️ Hentikan Suara Pengusir...';
       btn.classList.add('active-sound');
-      setTimeout(() => {
-        btn.textContent = '🔊 Bunyikan Pengusir Burung Sekarang';
-        btn.classList.remove('active-sound');
-      }, 1500);
+
+      tambahData();
     }
+
+    function resetTombol() {
+      const btn = document.getElementById('btnPicu');
+      btn.textContent = '🔊 Bunyikan Pengusir Burung Sekarang';
+      btn.classList.remove('active-sound');
+    }
+
+    // Kembalikan tampilan tombol seperti semula saat durasi MP3 selesai
+    audioPengusir.onended = resetTombol;
 
     function bacaData() {
       const tbody = document.getElementById('logBody');
       tbody.innerHTML = '';
-      
+
       logs.forEach(log => {
         tbody.innerHTML += `
           <tr>
@@ -108,20 +189,18 @@
           </tr>
         `;
       });
-      
+
       localStorage.setItem('iot_logs', JSON.stringify(logs));
     }
 
     function tambahData() {
-      putarSuaraPengusir(); // Jalankan suara sirine
-
       const logBaru = {
         id: Date.now(),
         waktu: new Date().toLocaleTimeString('id-ID', { hour12: false }),
         keterangan: 'Pemicu Manual via Cloud Dashboard',
-        aksi: 'Sirine & Ultrasonik Aktif'
+        aksi: 'Audio Pengusir MP3 Aktif'
       };
-      
+
       logs.unshift(logBaru);
       bacaData();
     }
@@ -148,4 +227,5 @@
     window.onload = bacaData;
   </script>
 </body>
+
 </html>
